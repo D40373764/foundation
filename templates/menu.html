@@ -1,0 +1,90 @@
+<div class="row show-for-small-only h-menu">
+  <div class="column small-12">
+    <ul class="menu">
+      <li><a href="/home">Home</a></li>
+      <li><a href="/user">User</a></li>
+      <li><a href="#">Three</a></li>
+      <li><a href="#">Four</a></li>
+    </ul>
+  </div>
+</div>
+
+<nav>
+  <div class="row show-for-medium v-menu">
+    <ul class="menu vertical">
+      <li>
+        <button href="#" ng-click="makeCall()" title="Make Call"><i class="fa fa-phone fa-fw"></i></button>
+      </li>
+      <li>
+        <button href="#" ng-click="showCalls()" title="Join meeting"><i class="fa fa-sign-in fa-fw"></i></button>
+      </li>
+      <li>
+        <button href="#" ng-click="leaveCall()" title="Leave meeting"><i class="fa fa-sign-out fa-fw"></i></button>
+      </li>
+      <li>
+        <a href="/foundation/users" title="Meeting participants"><i class="fa fa-users fa-fw"></i></a>
+      </li>
+      <li>
+        <a href="/foundation/#"><i class="fa fa-microphone fa-fw"></i></a>
+      </li>
+      <li>
+        <button href="#" ng-click="enableCamera()"><i class="fa fa-video-camera fa-fw"></i></button>
+      </li>
+      <li>
+        <a href="/foundation/#"><i class="fa fa-slideshare fa-fw"></i></a>
+      </li>
+      <li>
+        <button href="#" ng-click="triggerChatBox()"><i class="fa fa-weixin fa-fw"></i></button>
+      </li>
+      <li>
+        <button href="#" ng-click="triggerFileBox()"><i class="fa fa-upload fa-fw"></i></button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="row align-center" ng-hide="signinFlag">
+  <div class="column small-12 medium-8 large-6">
+    <form class="signinForm">
+      <div class="input-group">
+        <input class="input-group-field" type="text" placeholder="Username" ng-model="username">
+        <a class="input-group-button button" ng-click="signin(username)">SignIn</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<section>
+  <div class="call-list row no-margin" />
+
+  <div class="call-box hide">
+    <div class="column small-12 medium-12 large-6">
+      <div class="callout primary clearfix">
+        <h5>Caller ID : <span></span></h5>
+
+        <button type="button" class="button float-right">Join</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div id='localVideoBox' class="hide">
+    <video id='localVideo' autoPlay />
+  </div>
+
+  <div id='remoteVideoBox' class="row align-center hide">
+    <div class="column align-center">
+      <video id='remoteVideo' autoPlay controls />
+    </div>
+  </div>
+</section>
+
+
+<section>
+  <chat-box/>
+</section>
+
+<section>
+  <file-box></file-box>
+</section>
