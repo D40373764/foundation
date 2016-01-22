@@ -3,20 +3,38 @@
 var myCallbacks = {};
 
 myCallbacks.onOpen = function () {}
+
 myCallbacks.onCall = function (data) {
   console.log(data);
   screenController.setCallerID(data.callerId);
   updateMessage("Caller ID: " + data.callerId);
+  $('.call-button').prop('disabled', true);
+  $('.leave-button').prop('disabled', false);
 }
 
-myCallbacks.onOffer = function (data) {
-  screenController.onOffer(data);
+myCallbacks.onOffer = function () {
+  $('#spinner').addClass('hide');
+  dispatchEvent("CONNECTION_READY", true, "Connection...");
+
+  activeMenu(true);
+}
+
+myCallbacks.onScreenOffer = function (data) {
+  screenController.onScreenOffer(data);
+}
+
+myCallbacks.onAnswer = function () {
+  dispatchEvent("CONNECTION_READY", true, "Hello!");
+
+  activeMenu(true);
 }
 
 myCallbacks.onLeave = function (data) {
+  updateMessage(data.username + " left the call");
   console.log(data);
   screenController.closePeerConnection();
   document.querySelector('#remoteVideo').src = '';
+  activeMenu(false);
 }
 
 myCallbacks.onError = function (error) {
@@ -30,6 +48,7 @@ myCallbacks.onJoin = function (data) {
     $('.call-list').hide();
     screenController.startVideoConnection(document.querySelector('#remoteVideo'));
     updateMessage("Join successful.");
+    activeMenu(true);
   }
 }
 
@@ -39,9 +58,11 @@ myCallbacks.showCalls = function (data) {
   updateMessage(data.value.length + ' call');
 
   for (var i in data.value) {
+    var callerId = data.value[i];
+    var hostname = callerId.split('-')[1];
     var item = $(".call-box > div").clone();
-    item.find('button').attr("data-callerid", data.value[i]);
-    item.find('span').text(data.value[i]);
+    item.find('button').attr("data-callerid", callerId);
+    item.find('span').text(hostname);
     item.appendTo(".call-list");
   }
 
@@ -65,7 +86,7 @@ myCallbacks.onReceiveMessageCallback = function (event) {
     switch (message.type) {
     case 'message':
       var received = document.querySelector('.received');
-      received.innerHTML += "recv: " + message.data + "<br/>";
+      received.innerHTML = "<div class='incomingmessage'>" + message.data + "</div>" + received.innerHTML;
       received.scrollTop = received.scrollHeight;
       break;
     case 'file':
@@ -75,42 +96,6 @@ myCallbacks.onReceiveMessageCallback = function (event) {
     }
   } else {
     onReceiveFileCallback(event.data);
-  }
-}
-
-window.fileInfo = {};
-var receiveBuffer = [];
-var receivedSize = 0;
-var downloadAnchor = document.querySelector('a#download');
-var sendProgress = undefined;
-
-myCallbacks.onReceiveFileCallback = function (data) {
-  if (sendProgress === undefined) {
-    sendProgress = document.querySelector('progress#sendProgress');
-    sendProgress.max = fileInfo.size;
-  }
-
-  // trace('Received Message ' + event.data.byteLength);
-  receiveBuffer.push(data);
-  receivedSize += data.byteLength;
-
-  sendProgress.value = receivedSize;
-
-  // we are assuming that our signaling protocol told
-  // about the expected file size (and name, hash, etc).
-  if (receivedSize === fileInfo.size) {
-    var received = new window.Blob(receiveBuffer);
-    receiveBuffer = [];
-
-    var downloadAnchor = document.querySelector('a#download');
-    downloadAnchor.href = URL.createObjectURL(received);
-    downloadAnchor.download = fileInfo.name;
-    downloadAnchor.textContent =
-      'Click to download \'' + fileInfo.name + '\' (' + fileInfo.size + ' bytes)';
-    downloadAnchor.style.display = 'block';
-
-    receivedSize = 0;
-    window.fileInfo = {};
   }
 }
 

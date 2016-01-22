@@ -4,6 +4,7 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
 window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
 window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate;
+window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
 
 function hasUserMedia() {
   return !!(navigator.getUserMedia);
@@ -17,14 +18,16 @@ DeVry.WebRTCController = function (url, myCallbacks) {
   if (!(this instanceof DeVry.WebRTCController)) {
     return new DeVry.WebRTCController();
   }
-  this.video = undefined;
-  this.remoteVideo = undefined;
-  this.username = undefined;
-  this.callerId = undefined;
-  this.stream = undefined;
-  this.peerConnection = undefined;
-  this.sendDataChannel = undefined;
-  this.receiveDataChannel = undefined;
+  this.video = null;
+  this.remoteVideo = null;
+  this.remoteScreen = null;
+  this.username = null;
+  this.callerId = null;
+  this.stream = null;
+  this.peerConnection = null;
+  this.peerScreenConnection = null;
+  this.sendDataChannel = null;
+  this.receiveDataChannel = null;
   this.iceServers = [{
     "url": "stun:127.0.0.1:9876"
   }];
@@ -69,6 +72,10 @@ DeVry.WebRTCController.prototype.setRemoteVideo = function (remoteVideo) {
   this.remoteVideo = remoteVideo;
 }
 
+DeVry.WebRTCController.prototype.setRemoteScreen = function (remoteScreen) {
+  this.remoteScreen = remoteScreen;
+}
+
 DeVry.WebRTCController.prototype.setupPeerConnection = function (remoteVideo, callback) {
   var self = this;
 
@@ -106,16 +113,37 @@ DeVry.WebRTCController.prototype.setupPeerConnection = function (remoteVideo, ca
   callback();
 }
 
-DeVry.WebRTCController.prototype.startScreenConnection = function (screenConstraints, video) {
-  this.video = video;
-
-  if (hasUserMedia() && hasRTCPeerConnection()) {
-    navigator.getUserMedia(screenConstraints, this.successScreenCallback.bind(this), this.errorCallback.bind(this));
-  } else {
-    this.dispatchEvent("startScreenConnection", false, "Your browser does not support WebRTC.");
-  }
-}
-
+//DeVry.WebRTCController.prototype.setuppeerScreenConnection = function (stream) {
+//  var self = this;
+//  var peerConnection = new RTCPeerConnection(self.configuration);
+//  peerConnection.addStream(stream);
+//
+//  peerConnection.onaddstream = function (e) {
+//    self.remoteScreen.src = window.URL.createObjectURL(e.stream);
+//  }
+//
+//  // Setup ice handling
+//  peerConnection.onicecandidate = function (event) {
+//    if (event.candidate) {
+//      self.socket.send({
+//        type: "candidate",
+//        channel: "screen",
+//        candidate: event.candidate
+//      });
+//    }
+//  }
+//
+//  self.peerScreenConnection = peerConnection;
+//}
+//DeVry.WebRTCController.prototype.startScreenConnection = function (screenConstraints, video) {
+//  this.video = video;
+//
+//  if (hasUserMedia() && hasRTCPeerConnection()) {
+//    navigator.getUserMedia(screenConstraints, this.successScreenCallback.bind(this), this.errorCallback.bind(this));
+//  } else {
+//    this.dispatchEvent("startScreenConnection", false, "Your browser does not support WebRTC.");
+//  }
+//}
 DeVry.WebRTCController.prototype.successCameraCallback = function (stream) {
   var self = this;
   self.stream = stream;
@@ -124,43 +152,41 @@ DeVry.WebRTCController.prototype.successCameraCallback = function (stream) {
     self.dispatchEvent("enableCamera", true, "Video ended.");
   };
 
-  self.dispatchEvent("enableCamera", true, "Camera enabled.");
-}
+  // Microphone
+  var audioContext = new AudioContext();
+  var analyser = audioContext.createAnalyser();
+  var microphone = audioContext.createMediaStreamSource(stream);
+  var javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+  analyser.smoothingTimeConstant = 0.3;
+  analyser.fftsize = 1024;
+  microphone.connect(analyser);
+  analyser.connect(javascriptNode);
+  javascriptNode.connect(audioContext.destination);
+  var canvasContext = document.querySelector(".volume").getContext("2d");
+  javascriptNode.onaudioprocess = function (e) {
+    var array = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(array);
+    var length = array.length;
 
-DeVry.WebRTCController.prototype.successScreenCallback = function (stream) {
-  var self = this;
-  self.stream = stream;
-  self.video.src = URL.createObjectURL(stream);
-  stream.onended = function () {
-    self.dispatchEvent("startScreenConnection", true, "Share screen ended.");
-  };
-
-  self.peerConnection = new RTCPeerConnection(self.configuration);
-
-  self.peerConnection.onicecandidate = function (event) {
-    if (event.candidate) {
-      self.socket.send({
-        type: "candidate",
-        channel: "screen",
-        candidate: event.candidate
-      });
-      self.dispatchEvent("startScreenConnection", true, "Sharing...");
+    if (length > 0) {
+      var values = 0;
+      for (var i = 0; i < length; i++) {
+        values += array[i];
+      }
+      var average = values / length;
+      canvasContext.clearRect(0, 0, 384, 20);
+      canvasContext.fillStyle = 'red';
+      canvasContext.fillRect(0, 0, average, 20);
     }
   }
 
-  self.peerConnection.addStream(stream);
-
-  self.peerConnection.createOffer(function (sessionDescription) {
-    self.socket.send({
-      type: "offer",
-      channel: "screen",
-      offer: sessionDescription
-    });
-    self.peerConnection.setLocalDescription(sessionDescription);
-  }, function (error) {
-    self.dispatchEvent("startScreenConnection", false, "Failed to create offer.");
-  });
+  self.dispatchEvent("enableCamera", true, "Camera enabled.");
 }
+
+//DeVry.WebRTCController.prototype.successScreenCallback = function (stream) {
+//  this.screenStream = stream;
+//  this.setuppeerScreenConnection(stream);
+//}
 
 DeVry.WebRTCController.prototype.errorCallback = function (error) {
   this.dispatchEvent("error", false, "getUserMedia error: ", error);
@@ -171,12 +197,22 @@ DeVry.WebRTCController.prototype.closePeerConnection = function () {
     this.peerConnection.close();
     this.peerConnection.onicecandidate = null;
     this.peerConnection.onaddstream = null;
+    this.callerId = null;
+    this.socket.callerId = null;
+  }
+}
+
+DeVry.WebRTCController.prototype.closePeerScreenConnection = function () {
+  if (this.peerScreenConnection != null) {
+    this.peerScreenConnection.close();
+    this.peerScreenConnection.onicecandidate = null;
+    this.peerScreenConnection.onaddstream = null;
   }
 }
 
 DeVry.WebRTCController.prototype.dispatchEvent = function (type, success, message) {
   var event = new CustomEvent(
-    "webrtcMessageEvent", {
+    "WEBRTC_EVENT", {
       detail: {
         type: type,
         success: success,
@@ -208,14 +244,18 @@ DeVry.WebRTCController.prototype.joinCall = function (username, callerId) {
 }
 
 DeVry.WebRTCController.prototype.leaveCall = function () {
-  screenController.closePeerConnection();
   this.socket.leaveCall(this.username, this.callerId);
+  screenController.closePeerConnection();
 }
 
 DeVry.WebRTCController.prototype.onOffer = function (response) {
   var self = this;
   self.setupPeerConnection(this.remoteVideo, function () {
     self.peerConnection.setRemoteDescription(new RTCSessionDescription(response.offer));
+
+    // todo
+    //var video = document.querySelector('#remoteVideo');
+    //video.style.width = video.videoWidth;
 
     self.peerConnection.createAnswer(function (answer) {
       self.peerConnection.setLocalDescription(answer);
@@ -228,6 +268,41 @@ DeVry.WebRTCController.prototype.onOffer = function (response) {
       self.dispatchEvent("onOffer", false, "Failed to create answer: " + error);
     });
   });
+}
+
+DeVry.WebRTCController.prototype.onScreenOffer = function (response) {
+  var self = this;
+  var peerConnection = new RTCPeerConnection(self.configuration);
+
+  peerConnection.onaddstream = function (e) {
+    self.remoteScreen.src = window.URL.createObjectURL(e.stream);
+  }
+
+  // Setup ice handling
+  peerConnection.onicecandidate = function (event) {
+    if (event.candidate) {
+      self.socket.send({
+        type: "candidate",
+        channel: "screen",
+        candidate: event.candidate
+      });
+    }
+  }
+
+  peerConnection.setRemoteDescription(new RTCSessionDescription(response.offer));
+
+  peerConnection.createAnswer(function (answer) {
+    peerConnection.setLocalDescription(answer);
+    self.socket.send({
+      type: "answer",
+      channel: "screen",
+      answer: answer
+    });
+  }, function (error) {
+    alert("Failed to create answer:" + error);
+  });
+
+  self.peerScreenConnection = peerConnection;
 }
 
 

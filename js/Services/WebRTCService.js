@@ -1,5 +1,4 @@
 mainApp.factory('WebRTCService', function ($log) {
-  var shinyNewServiceInstance;
   var screenController = null;
 
   return {

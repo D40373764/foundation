@@ -6,7 +6,6 @@ mainApp.directive('fileBox', function () {
     link: function (scope, element) {
 
       scope.sendFile = function () {
-
         var files = document.querySelector('#file').files;
         if (files.length > 0) {
           var file = files[0];
@@ -19,6 +18,11 @@ mainApp.directive('fileBox', function () {
           }));
           sendFile(file);
         }
+      }
+
+      scope.close = function () {
+        document.querySelector('#download').style.display = 'none';
+        document.querySelector('.closedownload').style.display = 'none';
       }
 
     }
@@ -91,8 +95,8 @@ function onReceiveFileCallback(data) {
     downloadAnchor.download = fileInfo.name;
     downloadAnchor.textContent =
       'Click to download \'' + fileInfo.name + '\' (' + fileInfo.size + ' bytes)';
-    downloadAnchor.style.display = 'block';
-
+    downloadAnchor.style.display = 'inline-block';
+    document.querySelector('.closedownload').style.display = 'inline-block';
     receivedSize = 0;
     window.fileInfo = {};
   }

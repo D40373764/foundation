@@ -13,16 +13,26 @@ DeVry.SocketEventHandler = function (webRTCController, callbacks) {
   this.onOpen = callbacks.onOpen || function () {};
   this.onCall = callbacks.onCall || function () {};
   this.onJoin = callbacks.onJoin || function () {};
-  this.onOffer = callbacks.onOffer || function () {};
+  this.onOffer = function (data) {
+    webRTCController.onOffer(data);
+    callbacks.onOffer();
+  };
+  this.onScreenOffer = callbacks.onScreenOffer || function () {};
   this.onError = callbacks.onError || function () {};
-  this.onLeave = callbacks.onLeave || function () {};
+  this.onLeave = function (data) {
+    callbacks.onLeave(data);
+  };
   this.showCalls = callbacks.showCalls || function () {};
   this.onDefault = callbacks.onDefault || function () {};
   this.onAnswer = function (data) {
     webRTCController.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+    callbacks.onAnswer();
   };
   this.onCandidate = function (data) {
     webRTCController.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+  };
+  this.onScreenCandidate = function (data) {
+    webRTCController.peerScreenConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
   };
 }
 
@@ -35,16 +45,24 @@ DeVry.SocketEventHandler.prototype.onMessage = function (data) {
     this.onJoin(data);
     break;
   case 'offer':
-    this.onOffer(data);
+    if (data.channel === 'screen') {
+      this.onScreenOffer(data);
+    } else {
+      this.onOffer(data);
+    }
     break;
   case 'answer':
     this.onAnswer(data);
     break;
   case 'candidate':
-    this.onCandidate(data);
+    if (data.channel === 'screen') {
+      this.onScreenCandidate(data);
+    } else {
+      this.onCandidate(data);
+    }
     break;
   case 'leave':
-    this.onLeave();
+    this.onLeave(data);
     break;
   case 'error':
     this.onError(data);
@@ -62,9 +80,9 @@ DeVry.SocketManager = function () {
     return new DeVry.SocketManager();
   }
 
-  this.username = undefined;
-  this.callerId = undefined;
-  this.socket = undefined;
+  this.username = null;
+  this.callerId = null;
+  this.socket = null;
 }
 
 DeVry.SocketManager.prototype.connect = function (url, controller, myCallbacks) {
@@ -85,12 +103,14 @@ DeVry.SocketManager.prototype.connect = function (url, controller, myCallbacks) 
 
     if (data.type === 'call') {
       DeVry.SocketManager.callerId = data.callerId;
+    } else if (data.type === 'leave') {
+      DeVry.SocketManager.callerId = null;
     }
     callbackHandler.onMessage(data);
   };
 
   this.socket.onerror = function (error) {
-    callbackHandler.onError("Failed to connect to DeVry Video Chat server.");
+    callbackHandler.onError("Fail connect to DeVry Video Chat server.");
   };
 
   this.socket.onclose = function (data) {
@@ -139,11 +159,10 @@ DeVry.SocketManager.prototype.leaveCall = function (username, callerId) {
 DeVry.SocketManager.prototype.send = function (message) {
   var username = this.username;
   var callerId = this.callerId;
-
-  if (username !== undefined && username.length > 0) {
+  if (username !== null && username.length > 0) {
     message.username = username;
   }
-  if (callerId !== undefined && callerId.length > 0) {
+  if (callerId !== null && callerId.length > 0) {
     message.callerId = callerId;
   }
   this.socket.send(JSON.stringify(message));

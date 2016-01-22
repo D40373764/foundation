@@ -1,11 +1,8 @@
-<div class="row">
-  <div class="column medium-10">
+<div class="input-group">
+  <input class="input-group-field" type="text" placeholder="Enter message here" ng-model="chatMessage">
+  <a class="input-group-button button" ng-click="send()">Send</a>
+</div>
 
-    <div class="input-group">
-      <input class="input-group-field" type="text" placeholder="Enter message here" ng-model="chatMessage">
-      <a class="input-group-button button" ng-click="send()">Send</a>
-    </div>
-
-    <div class='received' />
-  </div>
+<div class="receivedBox">
+  <div class='received' />
 </div>

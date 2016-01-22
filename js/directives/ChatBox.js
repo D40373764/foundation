@@ -13,7 +13,7 @@ mainApp.directive('chatBox', function () {
           type: 'message',
           data: scope.chatMessage
         };
-        received.innerHTML += "send: " + scope.chatMessage + "<br/>";
+        received.innerHTML = "<div class='outmessage'>me: " + scope.chatMessage + "</div>" + received.innerHTML;
         received.scrollTop = received.scrollHeight;
         screenController.sendDataChannel.send(JSON.stringify(message));
 
