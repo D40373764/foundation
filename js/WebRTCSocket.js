@@ -11,7 +11,11 @@ DeVry.SocketEventHandler = function (webRTCController, callbacks) {
   }
   this.webRTCController = webRTCController;
   this.onOpen = callbacks.onOpen || function () {};
-  this.onCall = callbacks.onCall || function () {};
+  this.onCall = function (data) {
+    webRTCController.username = data.username;
+    webRTCController.callerId = data.callerId;
+    callbacks.onCall(data);
+  };
   this.onJoin = callbacks.onJoin || function () {};
   this.onOffer = function (data) {
     webRTCController.onOffer(data);

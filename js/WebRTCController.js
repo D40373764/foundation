@@ -194,7 +194,9 @@ DeVry.WebRTCController.prototype.errorCallback = function (error) {
 
 DeVry.WebRTCController.prototype.closePeerConnection = function () {
   if (this.peerConnection != null) {
-    this.peerConnection.close();
+    if (this.peerConnection.iceConnectionState !== "closed") {
+      this.peerConnection.close();
+    }
     this.peerConnection.onicecandidate = null;
     this.peerConnection.onaddstream = null;
     this.callerId = null;
@@ -204,7 +206,9 @@ DeVry.WebRTCController.prototype.closePeerConnection = function () {
 
 DeVry.WebRTCController.prototype.closePeerScreenConnection = function () {
   if (this.peerScreenConnection != null) {
-    this.peerScreenConnection.close();
+    if (this.peerScreenConnection.iceConnectionState !== "closed") {
+      this.peerScreenConnection.close();
+    }
     this.peerScreenConnection.onicecandidate = null;
     this.peerScreenConnection.onaddstream = null;
   }
@@ -244,8 +248,11 @@ DeVry.WebRTCController.prototype.joinCall = function (username, callerId) {
 }
 
 DeVry.WebRTCController.prototype.leaveCall = function () {
-  this.socket.leaveCall(this.username, this.callerId);
-  screenController.closePeerConnection();
+  if (this.username && this.callerId) {
+    this.socket.leaveCall(this.username, this.callerId);
+    this.closePeerConnection();
+    this.closePeerScreenConnection();
+  }
 }
 
 DeVry.WebRTCController.prototype.onOffer = function (response) {

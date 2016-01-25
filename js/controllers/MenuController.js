@@ -1,13 +1,8 @@
-mainApp.controller('MenuController', function ($rootScope, $scope, WebRTCService) {
+mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebRTCService) {
   console.log("This is MenuController");
-  $scope.username = '';
-  $scope.isAdvisor = false;
-
   const DESKTOP_MEDIA = ['screen', 'window'];
   const url = 'wss://d40373764.dvuadmin.net:8443';
   //const url = 'wss://192.168.1.6:8443';
-
-  $scope.signinFlag = false;
 
   $scope.signin = function (username, isAdvisor) {
     if (username === undefined || username.length === 0) {
@@ -35,6 +30,7 @@ mainApp.controller('MenuController', function ($rootScope, $scope, WebRTCService
   }
 
   $scope.enableCamera = function () {
+    document.querySelector('#localVideo').style.display = 'block';
     screenController.enableCamera({
       audio: true,
       video: true
@@ -58,7 +54,27 @@ mainApp.controller('MenuController', function ($rootScope, $scope, WebRTCService
     $('.leave-button').prop('disabled', false);
   }
 
+  $scope.back = function () {
+    delete localStorage.username;
+    delete localStorage.isAdvisor;
+//    $scope.username = undefined;
+//    $scope.isAdvisor = undefined;
+//    $scope.signinFlag = undefined;
+//
+//    var localVideo = document.querySelector('#localVideo');
+//    localVideo.style.display = 'none';
+//    localVideo.src = null;    $scope.leaveCall();
+
+    if (sessionStorage.getItem('enableBack')) {
+      $window.history.back();
+      delete sessionStorage.enableBack;
+    } else {
+      $window.location.reload();
+    }
+  }
+
   $scope.leaveCall = function () {
+    $scope.screenFlag = false;
     screenController.leaveCall();
     document.querySelector('#remoteVideo').src = '';
     $('#remoteVideoBox').addClass('hide');
@@ -94,9 +110,15 @@ mainApp.controller('MenuController', function ($rootScope, $scope, WebRTCService
 
   // Screen Box
   $scope.screenFlag = false;
+  $scope.remoteVideoClass = 'full-size';
   $scope.triggerScreenBox = function () {
     console.log("Screen box trigger");
     $scope.screenFlag = !$scope.screenFlag;
+    if ($scope.screenFlag) {
+      $scope.remoteVideoClass = 'small-size';
+    } else {
+      $scope.remoteVideoClass = 'full-size';
+    }
   }
 
   // Filter Box
@@ -111,4 +133,16 @@ mainApp.controller('MenuController', function ($rootScope, $scope, WebRTCService
     }
   }
 
+  $scope.username = '';
+  $scope.isAdvisor = false;
+  $scope.signinFlag = false;
+
+  $scope.init = function () {
+    var username = localStorage.getItem('username');
+    var isAdvisor = localStorage.getItem('isAdvisor');
+    if (username && isAdvisor) {
+      sessionStorage.setItem('enableBack', true);
+      $scope.signin(username, isAdvisor);
+    }
+  }
 });

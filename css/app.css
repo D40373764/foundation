@@ -72,7 +72,7 @@ nav {
 
 #localVideoBox video {
   display: block;
-  width: 25vw;
+  width: 10vw;
 }
 
 #remoteVideoBox {
@@ -85,19 +85,32 @@ nav {
   z-index: -900;
 }
 
-#remoteVideoBox video {
+.full-size {
   min-width: 100%;
   min-height: 100%;
   display: flex;
   flex-grow: 1;
   flex-basis: 100%;
+}
+
+.small-size {
+  position: fixed;
+  bottom: 62px;
+  left: 12px;
+  width: 10vw;
+}
+
+#remoteVideoBox video {
   z-index: -900;
 }
 
 #remoteScreenBox video {
+  position: relative;
+}
+
+#remoteScreenBox video {
   display: block;
-  margin: 0 auto;
-  z-index: -700;
+  margin: 0 0 0 auto;
 }
 
 .call-list {

@@ -1,5 +1,8 @@
 <nav ng-show="signinFlag">
   <div class="menu">
+    <div class="columns">
+      <button href="#" class="back-button" ng-click="back()" title="Exit"><i class="fa fa-times-circle enable"></i></button>
+    </div>
     <div class="columns" ng-if="!isAdvisor">
       <button href="#" class="call-button" ng-click="makeCall()" title="Make Call"><i class="fa fa-phone fa-fw enable"></i></button>
     </div>
@@ -65,11 +68,11 @@
 
 <section>
   <div id='localVideoBox' class="hide">
-    <video id='localVideo' autoPlay />
+    <video id='localVideo' autoPlay muted="muted" />
   </div>
 
   <div id='remoteVideoBox' class="hide">
-    <video id='remoteVideo' autoPlay />
+    <video id='remoteVideo' class='{{remoteVideoClass}}' autoPlay />
   </div>
 
   <div id='remoteScreenBox' ng-show="screenFlag">

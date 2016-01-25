@@ -33,7 +33,9 @@ myCallbacks.onLeave = function (data) {
   updateMessage(data.username + " left the call");
   console.log(data);
   screenController.closePeerConnection();
+  screenController.closePeerScreenConnection();
   document.querySelector('#remoteVideo').src = '';
+  document.querySelector('#remoteScreen').src = '';
   activeMenu(false);
 }
 
