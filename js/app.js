@@ -2,37 +2,42 @@ $(document).foundation();
 
 var mainApp = angular.module('mainApp', ['ngRoute']);
 
-mainApp.config(['$routeProvider', '$locationProvider',
-  function ($routeProvider, $locationProvider) {
-    $routeProvider.
-    when('/join', {
-      templateUrl: '/foundation/templates/join.html',
-      controller: 'JoinController'
-    }).
-    when('/leave', {
-      templateUrl: '/foundation/templates/leave.html',
-      controller: 'LeaveController'
-    }).
-    when('/user', {
-      templateUrl: '/foundation/templates/user.html',
-      controller: 'UserController'
-    }).
-    when('/video', {
-      templateUrl: '/foundation/templates/video.html',
-      controller: 'VideoController'
-    }).
-    otherwise({
-      redirectTo: '/'
-    });
-
-    $locationProvider.html5Mode(true);
-  }
-]);
+//mainApp.config(['$routeProvider', '$locationProvider',
+//  function ($routeProvider, $locationProvider) {
+//    $routeProvider.
+//    when('/join', {
+//      templateUrl: '/foundation/templates/join.html',
+//      controller: 'JoinController'
+//    }).
+//    when('/leave', {
+//      templateUrl: '/foundation/templates/leave.html',
+//      controller: 'LeaveController'
+//    }).
+//    when('/user', {
+//      templateUrl: '/foundation/templates/user.html',
+//      controller: 'UserController'
+//    }).
+//    when('/video', {
+//      templateUrl: '/foundation/templates/video.html',
+//      controller: 'VideoController'
+//    }).
+//    otherwise({
+//      redirectTo: '/'
+//    });
+//
+//    $locationProvider.html5Mode(true);
+//  }
+//]);
 
 function updateMessage(message) {
-  console.log("message=");
-  console.log(message);
-  $('.messageBox').text(message);
+  if (message && message.length > 0) {
+    console.log("message=" + message);
+    $('.message-body').html(message);
+    $('message-box').css('height', '50%');
+    setTimeout(function () {
+      $('message-box').css('height', '0');
+    }, 2000);
+  }
 }
 
 var dispatchEvent = function (type, success, message) {

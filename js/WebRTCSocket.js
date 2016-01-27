@@ -27,6 +27,7 @@ DeVry.SocketEventHandler = function (webRTCController, callbacks) {
     callbacks.onLeave(data);
   };
   this.showCalls = callbacks.showCalls || function () {};
+  this.showCallList = callbacks.showCallList || function () {};
   this.onDefault = callbacks.onDefault || function () {};
   this.onAnswer = function (data) {
     webRTCController.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
@@ -73,6 +74,9 @@ DeVry.SocketEventHandler.prototype.onMessage = function (data) {
     break;
   case 'calls':
     this.showCalls(data);
+    break;
+  case 'callList':
+    this.showCallList(data);
     break;
   default:
     this.onDefault(data);
@@ -133,9 +137,13 @@ DeVry.SocketManager.prototype.makeCall = function (username) {
 
 DeVry.SocketManager.prototype.getCallerIDs = function (username) {
   this.send({
-    type: "calls",
+    type: "callList",
     username: username,
   });
+  //  this.send({
+  //    type: "calls",
+  //    username: username,
+  //  });
 }
 
 DeVry.SocketManager.prototype.joinCall = function (username, callerId) {

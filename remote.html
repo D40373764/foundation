@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+
+<body>
+  <script>
+    window.addEventListener('message', function (event) {
+      console.log('received response:  ', event.data);
+      localStorage.username = event.data.username;
+      localStorage.isAdvisor = false;
+      window.location = "https://d40373764.dvuadmin.net/foundation/index.html";
+    }, false);
+  </script>
+</body>
+
+</html>

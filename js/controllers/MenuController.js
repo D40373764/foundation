@@ -57,17 +57,17 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
   $scope.back = function () {
     delete localStorage.username;
     delete localStorage.isAdvisor;
-//    $scope.username = undefined;
-//    $scope.isAdvisor = undefined;
-//    $scope.signinFlag = undefined;
-//
-//    var localVideo = document.querySelector('#localVideo');
-//    localVideo.style.display = 'none';
-//    localVideo.src = null;    $scope.leaveCall();
+    //    $scope.username = undefined;
+    //    $scope.isAdvisor = undefined;
+    //    $scope.signinFlag = undefined;
+    //
+    //    var localVideo = document.querySelector('#localVideo');
+    //    localVideo.style.display = 'none';
+    //    localVideo.src = null;    $scope.leaveCall();
 
     if (sessionStorage.getItem('enableBack')) {
-      $window.history.back();
       delete sessionStorage.enableBack;
+      window.close();
     } else {
       $window.location.reload();
     }
@@ -75,6 +75,7 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
 
   $scope.leaveCall = function () {
     $scope.screenFlag = false;
+    $scope.remoteVideoClass = 'full-size';
     screenController.leaveCall();
     document.querySelector('#remoteVideo').src = '';
     $('#remoteVideoBox').addClass('hide');
@@ -87,6 +88,7 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
   $scope.chatFlag = false;
   $scope.triggerChatBox = function () {
     $scope.chatFlag = !$scope.chatFlag;
+
     if ($scope.chatFlag) {
       $('chat-box').css('width', '100%');
       $('.received > div').css('height', 'auto')
@@ -138,11 +140,12 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
   $scope.signinFlag = false;
 
   $scope.init = function () {
-    var username = localStorage.getItem('username');
-    var isAdvisor = localStorage.getItem('isAdvisor');
+    var username = localStorage.username;
+    var isAdvisor = localStorage.isAdvisor;
+
     if (username && isAdvisor) {
       sessionStorage.setItem('enableBack', true);
-      $scope.signin(username, isAdvisor);
+      $scope.signin(username, isAdvisor.toString() == "true");
     }
   }
 });

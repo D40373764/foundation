@@ -99,6 +99,14 @@ DeVry.WebRTCController.prototype.setupPeerConnection = function (remoteVideo, ca
     }
   }
 
+  self.peerConnection.oniceconnectionstatechange = function (event) {
+    console.log(event);
+    if (self.peerConnection.iceConnectionState === 'closed') {
+      console.log("Peer disconnected");
+      self.dispatchEvent("close", true, "");
+    }
+  }
+
   self.peerConnection.ondatachannel = function (event) {
     console.log('Receive Channel Callback');
     var receiveDataChannel = event.channel;
@@ -162,25 +170,24 @@ DeVry.WebRTCController.prototype.successCameraCallback = function (stream) {
   microphone.connect(analyser);
   analyser.connect(javascriptNode);
   javascriptNode.connect(audioContext.destination);
-  var canvasContext = document.querySelector(".volume").getContext("2d");
-  javascriptNode.onaudioprocess = function (e) {
-    var array = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(array);
-    var length = array.length;
-
-    if (length > 0) {
-      var values = 0;
-      for (var i = 0; i < length; i++) {
-        values += array[i];
-      }
-      var average = values / length;
-      canvasContext.clearRect(0, 0, 384, 20);
-      canvasContext.fillStyle = 'red';
-      canvasContext.fillRect(0, 0, average, 20);
-    }
-  }
-
-  self.dispatchEvent("enableCamera", true, "Camera enabled.");
+  //  var canvasContext = document.querySelector(".volume").getContext("2d");
+  //  javascriptNode.onaudioprocess = function (e) {
+  //    var array = new Uint8Array(analyser.frequencyBinCount);
+  //    analyser.getByteFrequencyData(array);
+  //    var length = array.length;
+  //
+  //    if (length > 0) {
+  //      var values = 0;
+  //      for (var i = 0; i < length; i++) {
+  //        values += array[i];
+  //      }
+  //      var average = values / length;
+  //      canvasContext.clearRect(0, 0, 384, 20);
+  //      canvasContext.fillStyle = 'red';
+  //      canvasContext.fillRect(0, 0, average, 20);
+  //    }
+  //  }
+  self.dispatchEvent("enableCamera", true, "");
 }
 
 //DeVry.WebRTCController.prototype.successScreenCallback = function (stream) {

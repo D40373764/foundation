@@ -14,7 +14,7 @@ myCallbacks.onCall = function (data) {
 
 myCallbacks.onOffer = function () {
   $('#spinner').addClass('hide');
-  dispatchEvent("CONNECTION_READY", true, "Connection...");
+  dispatchEvent("CONNECTION_READY", true, "");
 
   activeMenu(true);
 }
@@ -57,7 +57,9 @@ myCallbacks.onJoin = function (data) {
 myCallbacks.showCalls = function (data) {
   console.log(data);
   $('.call-list').empty();
-  updateMessage(data.value.length + ' call');
+  if (data.value.length == 0) {
+    updateMessage('No call <i class="fa fa-smile-o"></i>');
+  }
 
   for (var i in data.value) {
     var callerId = data.value[i];
@@ -66,6 +68,35 @@ myCallbacks.showCalls = function (data) {
     item.find('button').attr("data-callerid", callerId);
     item.find('span').text(hostname);
     item.appendTo(".call-list");
+  }
+
+  $('.call-list button').on('click', function () {
+    var callerId = $(this).data('callerid');
+    var username = sessionStorage.username;
+
+    sessionStorage.callerId = callerId;
+    screenController.joinCall(username, callerId);
+  });
+}
+
+myCallbacks.showCallList = function (data) {
+  console.log(data);
+  $('.call-list').empty();
+
+  for (var callerId in data.value) {
+    var users = data.value[callerId];
+    if (users.length == 1) {
+      var hostname = callerId.split('-')[1];
+      var users = data.value[callerId];
+      var item = $(".call-box > div").clone();
+      item.find('button').attr("data-callerid", callerId);
+      item.find('span').text(hostname);
+      item.appendTo(".call-list");
+    }
+  }
+
+  if (data.value.length == 0 || $(".call-list > .callout").length == 0) {
+    updateMessage('No call <i class="fa fa-smile-o"></i>');
   }
 
   $('.call-list button').on('click', function () {
