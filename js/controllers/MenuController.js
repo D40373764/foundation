@@ -29,6 +29,40 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
     }
   }
 
+  $scope.videoFlag = true;
+  $scope.toggleVideo = function () {
+    $scope.videoFlag = !$scope.videoFlag;
+    screenController.toggleVideo();
+    if ($scope.videoFlag) {
+      $('.fa-video-camera').removeClass('disable').addClass('enable');
+    } else {
+      $('.fa-video-camera').removeClass('enable').addClass('disable');
+    }
+  }
+
+  $scope.audioFlag = true;
+  $scope.toggleAudio = function () {
+    $scope.audioFlag = !$scope.audioFlag;
+    screenController.toggleAudio();
+    if ($scope.audioFlag) {
+      $('.fa-microphone').removeClass('disable').addClass('enable');
+    } else {
+      $('.fa-microphone').removeClass('enable').addClass('disable');
+    }
+  }
+
+  $scope.takePhoto = function () {
+    var v = document.getElementById("localVideo");
+    var c = document.getElementById("localCanvas");
+    var s = document.getElementById("localScreenshot");
+    c.width = v.clientWidth;
+    c.height = v.clientHeight;
+
+    var ctx = c.getContext("2d");
+    ctx.drawImage(v, 0, 0);
+    s.src = c.toDataURL('image/png');
+  }
+
   $scope.enableCamera = function () {
     document.querySelector('#localVideo').style.display = 'block';
     screenController.enableCamera({

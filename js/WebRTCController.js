@@ -349,3 +349,11 @@ DeVry.WebRTCController.prototype.createDataChannel = function (received) {
 
   console.log("Send Data Channel is ready");
 }
+
+DeVry.WebRTCController.prototype.toggleVideo = function () {
+  this.stream.getVideoTracks()[0].enabled = !(this.stream.getVideoTracks()[0].enabled);
+}
+
+DeVry.WebRTCController.prototype.toggleAudio = function () {
+  this.stream.getAudioTracks()[0].enabled = !(this.stream.getAudioTracks()[0].enabled);
+}
