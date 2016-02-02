@@ -11,6 +11,12 @@ DeVry.SocketEventHandler = function (webRTCController, callbacks) {
   }
   this.webRTCController = webRTCController;
   this.onOpen = callbacks.onOpen || function () {};
+  this.onAdvisorLogin = function (data) {
+    callbacks.updateWaitingCallerCount(data);
+  };
+  this.updateWaitingCallerCount = function (data) {
+    callbacks.updateWaitingCallerCount(data);
+  };
   this.onCall = function (data) {
     webRTCController.username = data.username;
     webRTCController.callerId = data.callerId;
@@ -28,6 +34,7 @@ DeVry.SocketEventHandler = function (webRTCController, callbacks) {
   };
   this.showCalls = callbacks.showCalls || function () {};
   this.showCallList = callbacks.showCallList || function () {};
+  this.updateCallerCount = callbacks.updateCallerCount || function () {};
   this.onDefault = callbacks.onDefault || function () {};
   this.onAnswer = function (data) {
     webRTCController.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
@@ -43,6 +50,9 @@ DeVry.SocketEventHandler = function (webRTCController, callbacks) {
 
 DeVry.SocketEventHandler.prototype.onMessage = function (data) {
   switch (data.type) {
+  case 'advisorLogin':
+    this.onAdvisorLogin(data);
+    break;
   case 'call':
     this.onCall(data);
     break;
@@ -72,11 +82,14 @@ DeVry.SocketEventHandler.prototype.onMessage = function (data) {
   case 'error':
     this.onError(data);
     break;
-  case 'calls':
-    this.showCalls(data);
-    break;
+    //  case 'calls':
+    //    this.showCalls(data);
+    //    break;
   case 'callList':
     this.showCallList(data);
+    break;
+  case 'updateWaitingCallerCount':
+    this.updateWaitingCallerCount(data);
     break;
   default:
     this.onDefault(data);
@@ -124,6 +137,15 @@ DeVry.SocketManager.prototype.connect = function (url, controller, myCallbacks) 
   this.socket.onclose = function (data) {
     console.log("Connection was closed.");
   }
+}
+
+DeVry.SocketManager.prototype.advisorLogin = function (username) {
+  this.send({
+    type: "advisorLogin",
+    username: username,
+  });
+
+  this.username = username;
 }
 
 DeVry.SocketManager.prototype.makeCall = function (username) {

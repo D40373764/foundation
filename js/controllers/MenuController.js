@@ -2,7 +2,7 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
   console.log("This is MenuController");
   const DESKTOP_MEDIA = ['screen', 'window'];
   const url = 'wss://d40373764.dvuadmin.net:8443';
-  //const url = 'wss://192.168.1.6:8443';
+  //const url = 'wss://192.168.1.7:8443';
 
   $scope.signin = function (username, isAdvisor) {
     if (username === undefined || username.length === 0) {
@@ -12,9 +12,11 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
     $scope.signinFlag = true;
     $scope.username = username;
     sessionStorage.username = $scope.username;
+    sessionStorage.isAdvisor = $scope.isAdvisor;
     screenController = WebRTCService.getScreenController(url, myCallbacks);
-    updateMessage("Welcome, " + username + "!");
     $scope.enableCamera();
+
+    updateMessage("Welcome, " + username + "!");
   }
 
   $scope.muteFlag = false;
@@ -51,17 +53,18 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
     }
   }
 
-  $scope.takePhoto = function () {
-    var v = document.getElementById("localVideo");
-    var c = document.getElementById("localCanvas");
-    var s = document.getElementById("localScreenshot");
-    c.width = v.clientWidth;
-    c.height = v.clientHeight;
-
-    var ctx = c.getContext("2d");
-    ctx.drawImage(v, 0, 0);
-    s.src = c.toDataURL('image/png');
-  }
+  //  $scope.takePhoto = function () {
+  //    var v = document.getElementById("localVideo");
+  //    var c = document.getElementById("localCanvas");
+  //    var s = document.getElementById("localScreenshot");
+  //    v.style
+  //    c.width = v.clientWidth;
+  //    c.height = v.clientHeight;
+  //
+  //    var ctx = c.getContext("2d");
+  //    ctx.drawImage(v, 0, 0);
+  //    s.src = c.toDataURL('image/png');
+  //  }
 
   $scope.enableCamera = function () {
     document.querySelector('#localVideo').style.display = 'block';

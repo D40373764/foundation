@@ -2,7 +2,11 @@
 
 var myCallbacks = {};
 
-myCallbacks.onOpen = function () {}
+myCallbacks.onOpen = function () {
+  if (sessionStorage.isAdvisor) {
+    screenController.advisorLogin(sessionStorage.username);
+  }
+}
 
 myCallbacks.onCall = function (data) {
   console.log(data);
@@ -51,6 +55,7 @@ myCallbacks.onJoin = function (data) {
     screenController.startVideoConnection(document.querySelector('#remoteVideo'));
     updateMessage("Join successful.");
     activeMenu(true);
+    this.updateWaitingCallerCount(data);
   }
 }
 
@@ -106,6 +111,13 @@ myCallbacks.showCallList = function (data) {
     sessionStorage.callerId = callerId;
     screenController.joinCall(username, callerId);
   });
+
+  $('.waitingCaller').text(data.waitingCallerCount);
+
+}
+
+myCallbacks.updateWaitingCallerCount = function (data) {
+  $('.waitingCaller').text(data.waitingCallerCount);
 }
 
 myCallbacks.onDefault = function (data) {

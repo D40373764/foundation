@@ -357,3 +357,7 @@ DeVry.WebRTCController.prototype.toggleVideo = function () {
 DeVry.WebRTCController.prototype.toggleAudio = function () {
   this.stream.getAudioTracks()[0].enabled = !(this.stream.getAudioTracks()[0].enabled);
 }
+
+DeVry.WebRTCController.prototype.advisorLogin = function (username) {
+  this.socket.advisorLogin(username);
+}

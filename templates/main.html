@@ -7,7 +7,7 @@
       <button class="call-button" ng-click="makeCall()" title="Make Call"><i class="fa fa-phone fa-fw enable"></i></button>
     </div>
     <div class="columns" ng-if="isAdvisor">
-      <button class="join-button" ng-click="showCalls()" title="Join Call"><i class="fa fa-group fa-fw enable"></i></button>
+      <button class="join-button" ng-click="showCalls()" title="Join Call"><i class="fa fa-group fa-fw enable"></i><span class="alert badge waitingCaller">?</span></button>
     </div>
     <div class="columns">
       <button class="leave-button" ng-click="leaveCall()" title="Leave Call" ng-disabled="true"><i class="fa fa-sign-out fa-fw enable"></i></button>
