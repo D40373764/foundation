@@ -3,7 +3,7 @@
 var myCallbacks = {};
 
 myCallbacks.onOpen = function () {
-  if (sessionStorage.isAdvisor) {
+  if (sessionStorage.isAdvisor === 'true') {
     screenController.advisorLogin(sessionStorage.username);
   }
 }
@@ -41,6 +41,7 @@ myCallbacks.onLeave = function (data) {
   document.querySelector('#remoteVideo').src = '';
   document.querySelector('#remoteScreen').src = '';
   activeMenu(false);
+  this.updateWaitingCallerCount(data);
 }
 
 myCallbacks.onError = function (error) {
