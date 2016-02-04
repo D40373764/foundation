@@ -18,8 +18,11 @@
     <div class="columns hide">
       <button class="file-button" ng-click="triggerFileBox()" title="Share File"><i class="fa fa-upload fa-fw enable"></i></button>
     </div>
-    <div class="columns hide show-for-large">
+    <div class="columns hide show-for-large" ng-hide="isAdvisor">
       <button class="screen-button" ng-click="triggerScreenBox()" title="Share Screen"><i class="fa fa-slideshare fa-fw enable"></i></button>
+    </div>
+    <div class="columns hide show-for-large" ng-show="isAdvisor">
+      <button class="sharescreen-button" ng-click="launchChromeApp()" title="Share Screen"><i class="fa fa-slideshare fa-fw enable"></i></button>
     </div>
     <div class="columns">
       <button class="mic-button" ng-click="toggleAudio()" title="Mute"><i class="fa fa-microphone fa-fw enable"></i></button>

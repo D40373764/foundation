@@ -72,6 +72,10 @@ document.addEventListener("WEBRTC_EVENT", function (e) {
   updateMessage(e.detail.message);
 }, false);
 
+window.addEventListener('message', function (event) {
+  console.log('received response:  ', event.data);
+}, false);
+
 var activeMenu = function (active) {
   $('.call-button').prop('disabled', active);
   $('.join-button').prop('disabled', active);

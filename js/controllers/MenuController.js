@@ -160,6 +160,45 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
     }
   }
 
+  $scope.launchChromeApp = function () {
+    document.querySelector('.sharescreen-button').disabled = true;
+
+    var w = $window.open("https://devry.dvuadmin.net/launchchromeapp", "", "width=200, height=100");
+    w.close();
+
+    var count = 0;
+    var connected = false;
+    var waitInterval = 500;
+
+    var interval = window.setInterval(function () {
+
+      // The ID of the extension we want to talk to.
+      //var editorExtensionId = "ehmoiemadbbaonghebojhdljmcfnogii";
+      var editorExtensionId = "iigmfchpgiaigcpabhlpjndfcgpfgnom"; // DEV
+
+      // Make a simple request:
+      chrome.runtime.sendMessage(editorExtensionId, {
+          username: $scope.username,
+          callerId: screenController.callerId
+        },
+        function (response) {
+
+          if (connected === false && response === undefined) {
+            console.log("Continue to wait");
+          } else if (connected === false && response !== undefined) {
+            console.log("ignore");
+            connected = true;
+            waitInterval = 1000;
+          } else if (connected === true && response === undefined) {
+            connected = false;
+            window.clearInterval(interval);
+            document.querySelector('.sharescreen-button').disabled = false;
+          }
+        }
+      );
+    }, waitInterval);
+  }
+
   // Filter Box
   $scope.filterFlag = false;
   $scope.triggerFilterBox = function () {
