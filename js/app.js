@@ -29,15 +29,23 @@ var mainApp = angular.module('mainApp', ['ngRoute']);
 //  }
 //]);
 
-function updateMessage(message) {
+function updateMessage(message, duration) {
   if (message && message.length > 0) {
     console.log("message=" + message);
     $('.message-body').html(message);
     $('message-box').css('height', '50%');
     setTimeout(function () {
       $('message-box').css('height', '0');
-    }, 2000);
+    }, duration || 2000);
   }
+}
+
+function appInstallSuccess() {
+  updateMessage("DeVry Screen Sharing App is installed successful.");
+}
+
+function appInstallError(detail) {
+  updateMessage("Failed to install DeVry Screen Sharing App: " + detail, 6000);
 }
 
 var dispatchEvent = function (type, success, message) {
@@ -83,20 +91,17 @@ var activeMenu = function (active) {
   $('.chat-button').prop('disabled', !active);
   $('.file-button').prop('disabled', !active);
   $('.screen-button').prop('disabled', !active);
-  $('.mic-button').prop('disabled', !active);
   $('.filter-button').prop('disabled', !active);
 
   if (active) {
     $('.chat-button').parent().removeClass('hide');
     $('.file-button').parent().removeClass('hide');
-    $('.screen-button').parent().removeClass('hide');
-    $('.mic-button').parent().removeClass('hide');
+    $('.sharescreen-button').parent().removeClass('hide');
     $('.filter-button').parent().removeClass('hide');
   } else {
     $('.chat-button').parent().addClass('hide');
     $('.file-button').parent().addClass('hide');
-    $('.screen-button').parent().addClass('hide');
-    $('.mic-button').parent().addClass('hide');
+    $('.sharescreen-button').parent().addClass('hide');
     $('.filter-button').parent().addClass('hide');
   }
 }

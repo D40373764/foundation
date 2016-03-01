@@ -1,8 +1,7 @@
 mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebRTCService) {
   console.log("This is MenuController");
   const DESKTOP_MEDIA = ['screen', 'window'];
-  const url = 'wss://d40373764.dvuadmin.net:8443';
-  //const url = 'wss://192.168.1.7:8443';
+  const url = 'wss://d40373764.dvuadmin.net:8543';
 
   $scope.signin = function (username, isAdvisor) {
     if (username === undefined || username.length === 0) {
@@ -15,6 +14,11 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
     sessionStorage.isAdvisor = $scope.isAdvisor;
     screenController = WebRTCService.getScreenController(url, myCallbacks);
     $scope.enableCamera();
+
+    if (chrome.app.isInstalled) {
+      document.querySelector('.install-app').style.display = 'none';
+    }
+
 
     updateMessage("Welcome, " + username + "!");
   }
@@ -163,7 +167,10 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
   $scope.launchChromeApp = function () {
     document.querySelector('.sharescreen-button').disabled = true;
 
-    var w = $window.open("https://devry.dvuadmin.net/launchchromeapp", "", "width=200, height=100");
+    var w = $window.open("https://d40373764.dvuadmin.net/videochat/launchapp", "", "width=10, height=10");
+    //var w = $window.open("https://24.15.241.152/foundation/launchapp", "", "width=200, height=100");
+    //var w = $window.open("https://gwofu.github.io/videochat/launchapp", "", "width=200, height=100");
+
     w.close();
 
     var count = 0;
@@ -173,8 +180,7 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
     var interval = window.setInterval(function () {
 
       // The ID of the extension we want to talk to.
-      //var editorExtensionId = "ehmoiemadbbaonghebojhdljmcfnogii";
-      var editorExtensionId = "iigmfchpgiaigcpabhlpjndfcgpfgnom"; // DEV
+      var editorExtensionId = "iigmfchpgiaigcpabhlpjndfcgpfgnom";
 
       // Make a simple request:
       chrome.runtime.sendMessage(editorExtensionId, {
@@ -209,6 +215,11 @@ mainApp.controller('MenuController', function ($rootScope, $scope, $window, WebR
     } else {
       $('filter-box').css('width', '0');
     }
+  }
+
+  $scope.installApp = function () {
+    console.log("Install App");
+    chrome.webstore.install();
   }
 
   $scope.username = '';
